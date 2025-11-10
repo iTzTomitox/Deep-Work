@@ -1,13 +1,30 @@
 const menuItems = document.querySelectorAll('.menu-item')
+const nav = document.querySelector('.nav-lateral nav') // nuevo: referencia al nav
 const mainEl = document.querySelector('main') || document.getElementById('content')
 
 if (!mainEl) {
     console.error('No se encontró <main> ni #content. Añade un elemento <main> en index.html.')
 }
 
+const indicator = document.createElement('div')
+indicator.className = 'menu-indicator'
+nav.appendChild(indicator)
+
+function updateIndicator(item) {
+    if (!item) return
+    const offsetTop = item.offsetTop
+    const height = item.offsetHeight
+    const width = item.offsetWidth
+    indicator.style.transform = `translateY(${offsetTop}px)`
+    indicator.style.height = `${height}px`
+    indicator.style.width = `${width}px`
+}
+
+
 function setActive(item) {
     menuItems.forEach(i => i.classList.remove('active'))
     item.classList.add('active')
+    updateIndicator(item)
 }
 
 async function loadPage(page) {
@@ -43,6 +60,13 @@ menuItems.forEach(item => {
     })
 })
 
+
 const active = document.querySelector('.menu-item.active')
 const startPage = active?.dataset.page || 'dashboard'
 loadPage(startPage)
+
+setTimeout(() => updateIndicator(document.querySelector('.menu-item.active')), 0)
+
+window.addEventListener('resize', () => {
+    updateIndicator(document.querySelector('.menu-item.active'))
+})
