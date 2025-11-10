@@ -1,0 +1,135 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.container {
+    display: flex;
+}
+
+body {
+    background-color: #111111;
+    font-family: "Montserrat", sans-serif;
+    color: white;
+}
+
+nav {
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+}
+
+button {
+    width: 312px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 32px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-family: "Montserrat";
+    font-weight: 600;
+    border: none;
+    background-color: #171717;
+}
+
+.active {
+    background-color: #222222;
+}
+
+.container {
+    display: flex;
+}
+
+.nav-lateral {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #171717;
+
+}
+
+.logo {
+    width: 260px;
+    padding-bottom: 16px;
+}
+
+
+.card {
+    background: linear-gradient(#171717, #171717) padding-box,
+                linear-gradient(45deg, #222222, #000000) border-box;
+    -webkit-background-clip: padding-box, border-box;
+            background-clip: padding-box, border-box;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    color: #fff;
+    width: 432px;
+    height:140px;
+    box-shadow: 0px 4px 4px #00000025;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+        display: flex;
+    align-items: center;
+    gap: 20px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 400;
+    }
+
+    p {
+        font-size: 48px;
+    }
+
+    img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #202020;
+        padding: 16px;
+    }
+}
+
+.stats {
+    display: flex;
+    gap: 16px;
+    margin: 46px 24px;
+}
+
+.recent-activities {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0px 24px;
+}
+
+.progress {
+        background: linear-gradient(#171717, #171717) padding-box,
+                linear-gradient(45deg, #222222, #000000) border-box;
+    -webkit-background-clip: padding-box, border-box;
+            background-clip: padding-box, border-box;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    color: #fff;
+    width: 670px;
+    height:350px;
+    box-shadow: 0px 4px 4px #00000025;
+    padding: 16px;
+}
+
+.task {
+            background: linear-gradient(#171717, #171717) padding-box,
+                linear-gradient(45deg, #222222, #000000) border-box;
+    -webkit-background-clip: padding-box, border-box;
+            background-clip: padding-box, border-box;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    color: #fff;
+    width: 1400px;
+    height:350px;
+    box-shadow: 0px 4px 4px #00000025;
+    padding: 16px;
+}
