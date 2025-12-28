@@ -95,6 +95,14 @@ function runPageScripts(page) {
     if (page === 'pomodoro' && typeof initPomodoro === 'function') {
         try { initPomodoro() } catch (e) { console.error('Error iniciando pomodoro:', e) }
     }
+
+    // actualizar estadísticas cuando se cargue dashboard o estadisticas
+    if (page === 'dashboard' && typeof renderDashboardStats === 'function') {
+        try { renderDashboardStats() } catch (e) { console.error('Error renderizando stats dashboard:', e) }
+    }
+    if (page === 'estadisticas' && typeof renderStatisticsPage === 'function') {
+        try { renderStatisticsPage() } catch (e) { console.error('Error renderizando estadisticas:', e) }
+    }
 }
 
 // Inicializador de la funcionalidad de Tareas (creación / edición)
@@ -1066,4 +1074,66 @@ function initPomodoro() {
     // init
     display.textContent = formatTime(initialSeconds)
     populateTasks()
+}
+
+// Estadísticas: cálculo y render
+function secsToHuman(sec) {
+    const h = Math.floor(sec / 3600)
+    const m = Math.floor((sec % 3600) / 60)
+    return `${h}h ${m}m`
+}
+
+function computeStats() {
+    const tasks = JSON.parse(localStorage.getItem('tareas-list') || '[]')
+    const projects = JSON.parse(localStorage.getItem('projects-list') || '[]')
+    const totalSeconds = tasks.reduce((s, t) => s + (t.focusTimeSeconds || 0), 0)
+    const tasksCompleted = tasks.filter(t => t.completed).length
+    // time per project
+    const perProject = {}
+    tasks.forEach(t => {
+        const pid = t.projectId || 'Sin proyecto'
+        perProject[pid] = (perProject[pid] || 0) + (t.focusTimeSeconds || 0)
+    })
+    // top tasks
+    const topTasks = tasks.slice().sort((a,b) => (b.focusTimeSeconds||0) - (a.focusTimeSeconds||0)).slice(0,5)
+    return { totalSeconds, tasksCompleted, perProject, topTasks, projects }
+}
+
+function renderDashboardStats() {
+    const elHours = document.getElementById('hours-focus-value')
+    const elTasksCompleted = document.getElementById('tasks-completed-value')
+    if (!elHours && !elTasksCompleted) return
+    const stats = computeStats()
+    if (elHours) elHours.textContent = secsToHuman(stats.totalSeconds)
+    if (elTasksCompleted) elTasksCompleted.textContent = String(stats.tasksCompleted)
+}
+
+function renderStatisticsPage() {
+    const totalEl = document.getElementById('stats-total-focus')
+    const completedEl = document.getElementById('stats-tasks-completed')
+    const topList = document.getElementById('stats-top-tasks-list')
+    const byProject = document.getElementById('stats-by-project-list')
+    if (!totalEl || !completedEl || !topList || !byProject) return
+    const stats = computeStats()
+    totalEl.textContent = secsToHuman(stats.totalSeconds)
+    completedEl.textContent = String(stats.tasksCompleted)
+    topList.innerHTML = ''
+    stats.topTasks.forEach(t => {
+        const li = document.createElement('li')
+        li.textContent = `${t.name} — ${secsToHuman(t.focusTimeSeconds || 0)}`
+        topList.appendChild(li)
+    })
+    byProject.innerHTML = ''
+    // resolve project names
+    Object.keys(stats.perProject).forEach(pid => {
+        const seconds = stats.perProject[pid]
+        const li = document.createElement('li')
+        let label = pid
+        if (pid !== 'Sin proyecto') {
+            const p = stats.projects.find(x => x.id === pid)
+            if (p) label = p.name
+        }
+        li.textContent = `${label} — ${secsToHuman(seconds)}`
+        byProject.appendChild(li)
+    })
 }
