@@ -1,0 +1,766 @@
+.theme-switch {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  direction: rtl;
+}
+
+#theme-checkbox {
+  display: none;
+}
+
+#theme-checkbox + label {
+  font-size: 2rem;
+  height: 1em;
+  width: 2.5em;
+  border-radius: 0.25em;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  background-color: #cecece;
+  position: relative;
+}
+
+#theme-checkbox:checked + label {
+  background-color: #3a3a3a;
+}
+
+#theme-checkbox + label:active {
+  transform: scale(0.85);
+  transition: transform 0.2s;
+}
+
+#theme-checkbox + label div {
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: inherit;
+  position: absolute;
+  top: 0.1em;
+  left: 0.1em;
+  z-index: 10;
+  transition: 0.5s cubic-bezier(1, 0.33, 0.11, 1.34);
+  background-color: #f2f2f2;
+}
+
+#theme-checkbox:checked + label div {
+  left: 1.6em;
+  background-color: #212121;
+}
+
+#theme-checkbox + label span {
+  display: flex;
+}
+
+#theme-checkbox + label svg {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+  padding: 0.15em;
+  box-sizing: border-box;
+}
+
+#theme-checkbox + label span:first-of-type {
+  color: #3a3a3a;
+}
+
+#theme-checkbox + label span:last-of-type {
+  color: #cecece;
+}
+
+.card {
+  background: linear-gradient(#171717, #171717) padding-box, linear-gradient(45deg, #222222, #000000) border-box;
+  -webkit-background-clip: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #fff;
+  width: 432px;
+  height: 140px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1450980392);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.card h3 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.card p {
+  font-size: 48px;
+}
+.card img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #202020;
+  padding: 16px;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  margin: 46px 24px;
+}
+
+.recent-activities {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0px 24px;
+}
+
+.progress {
+  background: linear-gradient(#171717, #171717) padding-box, linear-gradient(45deg, #222222, #000000) border-box;
+  -webkit-background-clip: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #fff;
+  width: 670px;
+  height: 350px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1450980392);
+  padding: 16px;
+}
+
+.task {
+  background: linear-gradient(#171717, #171717) padding-box, linear-gradient(45deg, #222222, #000000) border-box;
+  -webkit-background-clip: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #fff;
+  width: 1400px;
+  height: 350px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1450980392);
+  padding: 16px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background-color: #111111;
+  color: #ffffff;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.background-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.02;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(40px, 40px);
+  }
+}
+.container {
+  display: flex;
+  gap: 24px;
+  min-height: 100vh;
+}
+
+.timer-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 3rem;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  width: 300px;
+  height: 300px;
+}
+
+.progress-ring-circle {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+  fill: transparent;
+}
+
+.progress-ring-progress {
+  stroke: #ffffff;
+  stroke-width: 6;
+  fill: transparent;
+  stroke-dasharray: 911;
+  stroke-dashoffset: 911;
+  transition: stroke-dashoffset 1s ease;
+  stroke-linecap: round;
+}
+
+.progress-ring-progress.work {
+  stroke: #ff6b6b;
+}
+
+.progress-ring-progress.break {
+  stroke: #4ecdc4;
+}
+
+.timer-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time {
+  font-size: 3.5rem;
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-type {
+  font-size: 1rem;
+  font-weight: 300;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: left 0.3s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.btn.primary:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff6b6b;
+}
+
+.settings {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.setting-label {
+  font-size: 0.8rem;
+  font-weight: 300;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.setting-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.setting-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.setting-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.setting-value {
+  font-size: 1rem;
+  font-weight: 300;
+  min-width: 3rem;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  opacity: 0.6;
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 200;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.notification {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  backdrop-filter: blur(10px);
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  z-index: 100;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+  .progress-ring {
+    width: 250px;
+    height: 250px;
+  }
+  .time {
+    font-size: 2.5rem;
+  }
+  .container {
+    padding: 1rem;
+  }
+  .settings, .controls, .stats {
+    gap: 1rem;
+  }
+}
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.pulsing {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.task-checkbox {
+  cursor: pointer;
+}
+.task-checkbox input {
+  display: none;
+}
+.task-checkbox svg {
+  overflow: visible;
+}
+
+.path {
+  fill: none;
+  stroke: white;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+  stroke-dasharray: 241 9999999;
+  stroke-dashoffset: 0;
+}
+
+.task-checkbox input:checked ~ svg .path {
+  stroke-dasharray: 70.5096664429 9999999;
+  stroke-dashoffset: -262.2723388672;
+}
+
+/* Tasks list styling */
+.task-list {
+  list-style: none;
+  margin-top: 12px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background 160ms ease;
+}
+
+.task-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.task-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.task-checkbox svg {
+  width: 20px;
+  height: 20px;
+}
+
+.task-name {
+  flex: 1;
+  font-size: 15px;
+}
+
+.task-project, .task-date {
+  margin-left: 8px;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.btn-edit, .btn-delete {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: transparent;
+  color: #ff6b6b;
+}
+
+/* User-provided fancy checkbox styles (moved from CSS into SASS) */
+.checkbox-container {
+  display: inline-block;
+  margin: 50px auto;
+  user-select: none;
+}
+
+.task-checkbox {
+  display: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.checkbox-label:hover {
+  background: rgba(16, 185, 129, 0.05);
+  color: #111827;
+}
+
+.checkbox-box {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  margin-right: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.checkbox-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transform: scale(0);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-radius: 4px;
+  opacity: 0;
+}
+
+.checkmark {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transform: scale(0.3) rotate(20deg);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.check-icon {
+  width: 14px;
+  height: 14px;
+  fill: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.success-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(16, 185, 129, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-text {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.checkbox-text::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #6b7280;
+  transition: width 0.4s ease;
+  transform: translateY(-50%);
+}
+
+.checkbox-label:hover .checkbox-box {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+
+.task-checkbox:checked + .checkbox-label .checkbox-box {
+  border-color: #10b981;
+  background: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.task-checkbox:checked + .checkbox-label .checkbox-fill {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.task-checkbox:checked + .checkbox-label .checkmark {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  animation: checkPop 0.3s ease-out 0.2s;
+}
+
+.task-checkbox:checked + .checkbox-label .success-ripple {
+  animation: rippleSuccess 0.6s ease-out;
+}
+
+.task-checkbox:checked + .checkbox-label .checkbox-text {
+  color: #6b7280;
+}
+
+.task-checkbox:checked + .checkbox-label .checkbox-text::after {
+  width: 100%;
+}
+
+.checkbox-label:active .checkbox-box {
+  transform: scale(0.95);
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+@keyframes rippleSuccess {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.6;
+  }
+  70% {
+    width: 50px;
+    height: 50px;
+    opacity: 0.3;
+  }
+  100% {
+    width: 60px;
+    height: 60px;
+    opacity: 0;
+  }
+}
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.container {
+  display: flex;
+}
+
+body {
+  background-color: #111111;
+  font-family: "Montserrat", sans-serif;
+  color: white;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+}
+nav button {
+  width: 312px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 32px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-family: "Montserrat";
+  font-weight: 600;
+  border: none;
+  background-color: #171717;
+}
+nav button .active {
+  background-color: #222222;
+}
+
+.nav-lateral {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #171717;
+}
+
+.logo {
+  width: 260px;
+  padding-bottom: 16px;
+}
+
+.menu-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 56px;
+  width: 312px;
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateY(0);
+  transition: transform 280ms cubic-bezier(0.2, 0.9, 0.2, 1), width 220ms ease, height 220ms ease;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.nav-lateral nav {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+}
+.nav-lateral nav .menu-item {
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.nav-lateral nav .menu-item :active {
+  color: #fff;
+}
+
+/*# sourceMappingURL=styles.css.map */

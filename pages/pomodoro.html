@@ -1,28 +1,90 @@
-    <div id="pomodoro-app">
-        <div class="pomodoro-controls">
-            <label>Duración (min): <input id="pomodoro-minutes" type="number" min="1" value="25"></label>
-            <label>Tarea: <select id="pomodoro-task-select"><option value="">Sin tarea</option></select></label>
-        </div>
 
-        <div class="pomodoro-timer">
-            <div id="pomodoro-timer-display">25:00</div>
-            <div class="pomodoro-buttons">
-                <button id="pomodoro-start">Iniciar</button>
-                <button id="pomodoro-pause">Pausar</button>
-                <button id="pomodoro-reset">Reset</button>
-            </div>
-            <div class="pomodoro-accum">Tiempo acumulado en tarea: <span id="pomodoro-accum">0m</span></div>
-        </div>
-    </div>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro</title>
+    <title>Pomodoro Timer</title>
+    <!-- Los estilos están en SASS: sass/layout/_pomodoro.scss -->
 </head>
 <body>
-    <h1>Pomodoro</h1>
+    <div class="background-grid"></div>
+    <div class="container">
+        <div id="pomodoro-app">
+            <div class="timer-wrapper">
+                <svg class="progress-ring" viewBox="0 0 300 300">
+                    <circle class="progress-ring-circle" cx="150" cy="150" r="145"></circle>
+                    <circle class="progress-ring-progress work" id="progress" cx="150" cy="150" r="145"></circle>
+                </svg>
+                <div class="timer-display">
+                    <!-- El JS principal espera el id `pomodoro-timer-display` -->
+                    <div class="time" id="pomodoro-timer-display">25:00</div>
+                    <div class="session-type" id="sessionType">Work Session</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn primary" id="pomodoro-start">Start</button>
+                <button class="btn" id="pomodoro-pause">Pause</button>
+                <button class="btn" id="pomodoro-reset">Reset</button>
+                <button class="btn" id="skipBtn">Skip</button>
+            </div>
+
+            <div class="settings">
+                <div class="setting-group">
+                    <div class="setting-label">Work</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" id="workMinus">−</button>
+                        <div class="setting-value" id="workTime">25</div>
+                        <button class="setting-btn" id="workPlus">+</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Break</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" id="breakMinus">−</button>
+                        <div class="setting-value" id="breakTime">5</div>
+                        <button class="setting-btn" id="breakPlus">+</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Long Break</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" id="longBreakMinus">−</button>
+                        <div class="setting-value" id="longBreakTime">15</div>
+                        <button class="setting-btn" id="longBreakPlus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="completedSessions">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalTime">0h 0m</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+
+            <!-- Elementos que el JS original espera (inputs/select). Mantener aquí para compatibilidad -->
+            <div style="display:none">
+                <label>Duración (min): <input id="pomodoro-minutes" type="number" min="1" value="25"></label>
+                <select id="pomodoro-task-select"><option value="">Sin tarea</option></select>
+            </div>
+
+            <div class="pomodoro-accum" style="display:none">Tiempo acumulado en tarea: <span id="pomodoro-accum">0m</span></div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationText">Session completed!</div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,159 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Arial', sans-serif;
+	background: #0f0f0f;
+	color: #ffffff;
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	position: relative;
+}
+
+.background-grid {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0.02;
+	background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+	background-size: 40px 40px;
+	animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+	0% { transform: translate(0,0); }
+	100% { transform: translate(40px,40px); }
+}
+
+.container {
+	text-align: center;
+	z-index: 2;
+	position: relative;
+	padding: 2rem;
+}
+
+.timer-wrapper {
+	position: relative;
+	display: inline-block;
+	margin-bottom: 3rem;
+}
+
+.progress-ring {
+	transform: rotate(-90deg);
+	width: 300px;
+	height: 300px;
+}
+
+.progress-ring-circle {
+	stroke: rgba(255,255,255,0.1);
+	stroke-width: 6;
+	fill: transparent;
+}
+
+.progress-ring-progress {
+	stroke: #ffffff;
+	stroke-width: 6;
+	fill: transparent;
+	stroke-dasharray: 911;
+	stroke-dashoffset: 911;
+	transition: stroke-dashoffset 1s ease;
+	stroke-linecap: round;
+}
+
+.progress-ring-progress.work { stroke: #ff6b6b; }
+.progress-ring-progress.break { stroke: #4ecdc4; }
+
+.timer-display {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.time {
+	font-size: 3.5rem;
+	font-weight: 200;
+	letter-spacing: 0.1em;
+	margin-bottom: 0.5rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.session-type {
+	font-size: 1rem;
+	font-weight: 300;
+	opacity: 0.7;
+	text-transform: uppercase;
+	letter-spacing: 0.2em;
+}
+
+.controls { display:flex; gap:1.5rem; margin-bottom:2rem; justify-content:center; flex-wrap:wrap; }
+
+.btn {
+	background: rgba(255,255,255,0.05);
+	border: 1px solid rgba(255,255,255,0.1);
+	color: #ffffff;
+	padding: 0.8rem 1.5rem;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-weight: 300;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	transition: all 0.3s ease;
+	backdrop-filter: blur(10px);
+	position: relative;
+	overflow: hidden;
+}
+.btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: rgba(255,255,255,0.1);
+	transition: left 0.3s ease;
+}
+.btn:hover::before { left: 100%; }
+.btn:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn.primary { border-color: #ff6b6b; color: #ff6b6b; }
+.btn.primary:hover { background: rgba(255,107,107,0.1); border-color: #ff6b6b; }
+
+.settings { display:flex; gap:2rem; justify-content:center; margin-bottom:2rem; flex-wrap:wrap; }
+.setting-group { display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+.setting-label { font-size:0.8rem; font-weight:300; opacity:0.7; text-transform:uppercase; letter-spacing:0.1em; }
+.setting-controls { display:flex; align-items:center; gap:0.5rem; }
+.setting-btn { background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; width:32px; height:32px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition: all 0.3s ease; }
+.setting-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+.setting-value { font-size:1rem; font-weight:300; min-width:3rem; text-align:center; }
+
+.stats { display:flex; gap:2rem; justify-content:center; opacity:0.6; flex-wrap:wrap; }
+.stat { text-align:center; }
+.stat-value { font-size:1.5rem; font-weight:200; margin-bottom:0.25rem; }
+.stat-label { font-size:0.8rem; font-weight:300; text-transform:uppercase; letter-spacing:0.1em; }
+
+.notification { position: fixed; top:2rem; right:2rem; background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:1rem 1.5rem; backdrop-filter: blur(10px); transform: translateX(400px); transition: transform 0.3s ease; z-index:100; }
+.notification.show { transform: translateX(0); }
+
+@media (max-width:768px) {
+	.progress-ring { width:250px; height:250px; }
+	.time { font-size:2.5rem; }
+	.container { padding:1rem; }
+	.settings, .controls, .stats { gap:1rem; }
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.pulsing { animation: pulse 1s ease-in-out infinite; }
+

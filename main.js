@@ -1,6 +1,7 @@
 const menuItems = document.querySelectorAll('.menu-item')
 const nav = document.querySelector('.nav-lateral nav') // nuevo: referencia al nav
-const mainEl = document.querySelector('main') || document.getElementById('content')
+// preferir el contenedor interno `#content` si existe, para no reemplazar el <main> entero
+const mainEl = document.getElementById('content') || document.querySelector('main')
 
 if (!mainEl) {
     console.error('No se encontró <main> ni #content. Añade un elemento <main> en index.html.')
@@ -33,7 +34,16 @@ async function loadPage(page) {
         const res = await fetch(`pages/${page}.html`)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const html = await res.text()
-        mainEl.innerHTML = html
+        // parsear y extraer solo el contenido útil para inyectar en #content
+        try {
+            const tmp = document.createElement('div')
+            tmp.innerHTML = html
+            // preferir el elemento con id "content" dentro del fragmento, luego <main>, luego <body>
+            const fragment = tmp.querySelector('#content') || tmp.querySelector('main') || tmp.querySelector('body') || tmp
+            mainEl.innerHTML = fragment.innerHTML
+        } catch (e) {
+            mainEl.innerHTML = html
+        }
         console.log(`Página cargada: pages/${page}.html`)
         runPageScripts(page)
         return
@@ -192,15 +202,43 @@ function initTareas() {
             const li = document.createElement('li')
             li.className = 'task-item'
 
+            // build checkbox structure expected by the SASS styles:
+            // <input type="checkbox" class="task-checkbox" id="..."> + <label class="checkbox-label" for="..."> ... </label>
             const checkbox = document.createElement('input')
             checkbox.type = 'checkbox'
             checkbox.className = 'task-checkbox'
+            const cbId = `task-cb-${t.id}`
+            checkbox.id = cbId
             checkbox.checked = !!t.completed
 
-            const nameSpan = document.createElement('span')
-            nameSpan.className = 'task-name'
-            nameSpan.textContent = t.name
-            nameSpan.style.textDecoration = t.completed ? 'line-through' : 'none'
+            const label = document.createElement('label')
+            label.className = 'checkbox-label'
+            label.htmlFor = cbId
+
+            const box = document.createElement('div')
+            box.className = 'checkbox-box'
+            const fill = document.createElement('div')
+            fill.className = 'checkbox-fill'
+            const checkmark = document.createElement('span')
+            checkmark.className = 'checkmark'
+            // inline SVG for check icon
+            checkmark.innerHTML = '<svg class="check-icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>'
+            const ripple = document.createElement('span')
+            ripple.className = 'success-ripple'
+            box.appendChild(fill)
+            box.appendChild(checkmark)
+            box.appendChild(ripple)
+
+            const textSpan = document.createElement('span')
+            textSpan.className = 'checkbox-text'
+            textSpan.textContent = t.name
+
+            label.appendChild(box)
+            label.appendChild(textSpan)
+
+            const nameSpan = textSpan
+            nameSpan.classList.add('task-name')
+            if (t.completed) nameSpan.style.textDecoration = 'line-through'
 
             const projectSpan = document.createElement('small')
             projectSpan.className = 'task-project'
@@ -238,6 +276,7 @@ function initTareas() {
             })
 
             li.appendChild(checkbox)
+            li.appendChild(label)
             li.appendChild(nameSpan)
             li.appendChild(projectSpan)
             li.appendChild(dateSpan)
@@ -964,11 +1003,14 @@ function initPomodoro() {
 
     const TASKS_KEY = 'tareas-list'
     const PROJECTS_KEY = 'projects-list'
+    const SESSIONS_KEY = 'pomodoro-sessions'
 
     function loadTasks() { return JSON.parse(localStorage.getItem(TASKS_KEY) || '[]') }
     function saveTasks(t) { localStorage.setItem(TASKS_KEY, JSON.stringify(t)) }
     function loadProjects() { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]') }
     function saveProjects(p) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(p)) }
+    function loadSessions() { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]') }
+    function saveSessions(s) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(s)) }
 
     function formatTime(s) { const m = Math.floor(s/60); const sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` }
     function fmtAccum(sec) { if (!sec) return '0m'; const m = Math.floor(sec/60); return `${m}m` }
@@ -1013,6 +1055,14 @@ function initPomodoro() {
             ;(p.subprojects || []).forEach(sp => (sp.tasks || []).forEach(tt => { if (tt.id === taskId) { tt.focusTimeSeconds = (tt.focusTimeSeconds || 0) + seconds; changed = true } }))
         })
         if (changed) saveProjects(projects)
+        // also persist a session record so we can build time-series (timestamp in ms)
+        try {
+            const sessions = loadSessions()
+            sessions.push({ taskId: taskId, seconds: seconds, timestamp: Date.now() })
+            saveSessions(sessions)
+        } catch (e) {
+            console.error('Error saving pomodoro session', e)
+        }
     }
 
     function tick() {
@@ -1074,6 +1124,41 @@ function initPomodoro() {
     // init
     display.textContent = formatTime(initialSeconds)
     populateTasks()
+    // --- Integración con controles de la nueva UI (si existen) ---
+    const workMinusBtn = app.querySelector('#workMinus')
+    const workPlusBtn = app.querySelector('#workPlus')
+    const workValEl = app.querySelector('#workTime')
+    const breakMinusBtn = app.querySelector('#breakMinus')
+    const breakPlusBtn = app.querySelector('#breakPlus')
+    const breakValEl = app.querySelector('#breakTime')
+    const longBreakMinusBtn = app.querySelector('#longBreakMinus')
+    const longBreakPlusBtn = app.querySelector('#longBreakPlus')
+    const longBreakValEl = app.querySelector('#longBreakTime')
+
+    function setWorkMinutes(v) {
+        if (workValEl) workValEl.textContent = String(v)
+        if (minutesInput) {
+            minutesInput.value = String(v)
+            const ev = new Event('change')
+            minutesInput.dispatchEvent(ev)
+        }
+    }
+
+    // inicializar valores visuales si están presentes
+    if (workValEl) {
+        const cur = parseInt(workValEl.textContent || minutesInput.value || '25', 10)
+        setWorkMinutes(cur)
+    }
+
+    if (workMinusBtn) workMinusBtn.addEventListener('click', () => { const v = Math.max(1, (parseInt(workValEl.textContent,10) || 25) - 1); setWorkMinutes(v) })
+    if (workPlusBtn) workPlusBtn.addEventListener('click', () => { const v = (parseInt(workValEl.textContent,10) || 25) + 1; setWorkMinutes(v) })
+
+    // break/long break solo actualizan la UI (no cambian el temporizador por defecto)
+    if (breakMinusBtn && breakValEl) breakMinusBtn.addEventListener('click', () => { const v = Math.max(1, (parseInt(breakValEl.textContent,10) || 5) - 1); breakValEl.textContent = String(v) })
+    if (breakPlusBtn && breakValEl) breakPlusBtn.addEventListener('click', () => { const v = (parseInt(breakValEl.textContent,10) || 5) + 1; breakValEl.textContent = String(v) })
+    if (longBreakMinusBtn && longBreakValEl) longBreakMinusBtn.addEventListener('click', () => { const v = Math.max(1, (parseInt(longBreakValEl.textContent,10) || 15) - 1); longBreakValEl.textContent = String(v) })
+    if (longBreakPlusBtn && longBreakValEl) longBreakPlusBtn.addEventListener('click', () => { const v = (parseInt(longBreakValEl.textContent,10) || 15) + 1; longBreakValEl.textContent = String(v) })
+
 }
 
 // Estadísticas: cálculo y render
@@ -1106,6 +1191,7 @@ function renderDashboardStats() {
     const stats = computeStats()
     if (elHours) elHours.textContent = secsToHuman(stats.totalSeconds)
     if (elTasksCompleted) elTasksCompleted.textContent = String(stats.tasksCompleted)
+    try { renderPomodoroChart() } catch (e) { /* chart may not be present */ }
 }
 
 function renderStatisticsPage() {
@@ -1137,3 +1223,188 @@ function renderStatisticsPage() {
         byProject.appendChild(li)
     })
 }
+
+// Chart: agregación de sesiones de pomodoro por día o semana
+let pomodoroChart = null
+function formatDateLabel(d) {
+    const y = d.getFullYear()
+    const m = String(d.getMonth()+1).padStart(2,'0')
+    const day = String(d.getDate()).padStart(2,'0')
+    return `${y}-${m}-${day}`
+}
+
+function getPomodoroAggregation(period = 'day', units = 14) {
+    const sessions = JSON.parse(localStorage.getItem('pomodoro-sessions') || '[]')
+    const map = {}
+    const now = new Date()
+    if (period === 'day') {
+        // last `units` days
+        for (let i = units-1; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+            const key = formatDateLabel(d)
+            map[key] = 0
+        }
+        sessions.forEach(s => {
+            const d = new Date(s.timestamp)
+            const key = formatDateLabel(d)
+            if (key in map) map[key] += (s.seconds || 0)
+        })
+        const labels = Object.keys(map)
+        const data = labels.map(k => +(map[k] / 3600).toFixed(2))
+        return { labels, data }
+    } else {
+        // week aggregation: last `units` weeks (ISO week starting Monday)
+        function weekKey(d) {
+            const copy = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+            const dayNum = copy.getUTCDay() || 7
+            copy.setUTCDate(copy.getUTCDate() - dayNum + 1)
+            const year = copy.getUTCFullYear()
+            const weekStart = formatDateLabel(new Date(Date.UTC(copy.getUTCFullYear(), copy.getUTCMonth(), copy.getUTCDate())))
+            return `${year}-W-${weekStart}`
+        }
+        // prepare keys for last N weeks
+        for (let i = units-1; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i*7)
+            const key = weekKey(d)
+            map[key] = 0
+        }
+        sessions.forEach(s => {
+            const d = new Date(s.timestamp)
+            const key = weekKey(d)
+            if (key in map) map[key] += (s.seconds || 0)
+        })
+        const labels = Object.keys(map)
+        const data = labels.map(k => +(map[k] / 3600).toFixed(2))
+        return { labels, data }
+    }
+}
+
+function renderPomodoroChart() {
+    const canvas = document.getElementById('pomodoroChart')
+    if (!canvas) return
+    const periodSel = document.getElementById('pomodoro-period')
+    const period = periodSel ? periodSel.value : 'day'
+    const units = period === 'day' ? 14 : 12
+    const agg = getPomodoroAggregation(period, units)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // simple canvas renderer (no Chart.js) — draws axes, grid, labels and a line with area
+    function drawSimpleLineChart(ctx, labels, data) {
+        const dpr = window.devicePixelRatio || 1
+        const width = canvas.clientWidth || canvas.width
+        const height = canvas.clientHeight || canvas.height
+        canvas.width = Math.floor(width * dpr)
+        canvas.height = Math.floor(height * dpr)
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        ctx.clearRect(0, 0, width, height)
+
+        const padding = { left: 48, right: 16, top: 24, bottom: 40 }
+        const plotW = width - padding.left - padding.right
+        const plotH = height - padding.top - padding.bottom
+
+        // compute y scale
+        const maxY = Math.max(1, Math.max(...data))
+        const minY = 0
+
+        // grid lines
+        ctx.strokeStyle = '#e6e6e6'
+        ctx.lineWidth = 1
+        const yTicks = 4
+        for (let i = 0; i <= yTicks; i++) {
+            const y = padding.top + (plotH * i / yTicks)
+            ctx.beginPath(); ctx.moveTo(padding.left, y); ctx.lineTo(padding.left + plotW, y); ctx.stroke()
+        }
+
+        // axes
+        ctx.strokeStyle = '#333'
+        ctx.lineWidth = 1
+        ctx.beginPath(); ctx.moveTo(padding.left, padding.top); ctx.lineTo(padding.left, padding.top + plotH); ctx.lineTo(padding.left + plotW, padding.top + plotH); ctx.stroke()
+
+        // y labels
+        ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right'
+        for (let i = 0; i <= yTicks; i++) {
+            const v = maxY - (maxY - minY) * (i / yTicks)
+            const y = padding.top + (plotH * i / yTicks)
+            ctx.fillText(v.toFixed(1), padding.left - 8, y + 4)
+        }
+
+        // x labels and points
+        const n = Math.max(1, labels.length)
+        const stepX = plotW / Math.max(1, n - 1)
+        const points = data.map((val, i) => {
+            const x = padding.left + i * stepX
+            const y = padding.top + plotH - ((val - minY) / (maxY - minY || 1)) * plotH
+            return { x, y }
+        })
+
+        // area under curve
+        ctx.beginPath()
+        if (points.length) {
+            ctx.moveTo(points[0].x, padding.top + plotH)
+            points.forEach(p => ctx.lineTo(p.x, p.y))
+            ctx.lineTo(padding.left + plotW, padding.top + plotH)
+            ctx.closePath()
+            const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + plotH)
+            grad.addColorStop(0, 'rgba(54,162,235,0.15)')
+            grad.addColorStop(1, 'rgba(54,162,235,0)')
+            ctx.fillStyle = grad
+            ctx.fill()
+        }
+
+        // line
+        ctx.beginPath(); ctx.strokeStyle = 'rgba(54,162,235,1)'; ctx.lineWidth = 2
+        points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y))
+        ctx.stroke()
+
+        // points
+        ctx.fillStyle = 'rgba(54,162,235,1)'
+        points.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill() })
+
+        // x labels
+        ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'
+        const labelEvery = Math.ceil(n / 8)
+        labels.forEach((lab, i) => {
+            if (i % labelEvery === 0 || i === labels.length - 1) {
+                const x = padding.left + i * stepX
+                ctx.fillText(lab, x, padding.top + plotH + 18)
+            }
+        })
+    }
+
+    drawSimpleLineChart(ctx, agg.labels, agg.data)
+
+    if (periodSel) {
+        periodSel.onchange = () => renderPomodoroChart()
+    }
+}
+
+// Dev helper: insertar sesiones de ejemplo y renderizar (usar ?seedPomodoro=1)
+function seedPomodoroSample(days = 14) {
+    try {
+        const key = 'pomodoro-sessions'
+        const existing = JSON.parse(localStorage.getItem(key) || '[]')
+        if (existing.length) return
+        const now = new Date()
+        const sessions = []
+        for (let d = 0; d < days; d++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - d)
+            const sessionsCount = Math.floor(Math.random() * 3) // 0..2
+            for (let s = 0; s < sessionsCount; s++) {
+                const secs = (15 + Math.floor(Math.random() * 36)) * 60 // 15-50 minutes
+                // spread within the day
+                const ts = new Date(date.getFullYear(), date.getMonth(), date.getDate(), Math.floor(Math.random()*24), Math.floor(Math.random()*60)).getTime()
+                sessions.push({ taskId: 'demo', seconds: secs, timestamp: ts })
+            }
+        }
+        localStorage.setItem(key, JSON.stringify(sessions))
+        console.info('Seeded pomodoro sessions:', sessions.length)
+        renderPomodoroChart()
+    } catch (e) { console.error('Error seeding sessions', e) }
+}
+
+// auto-seed when requested via querystring
+try {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('seedPomodoro') === '1') seedPomodoroSample(14)
+} catch (e) {}

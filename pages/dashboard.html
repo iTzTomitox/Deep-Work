@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/style.css">
-    <script src="./main.js" defer></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../main.js" defer></script>
 </head>
 
 <body>
@@ -42,13 +42,23 @@
 
         <section class="recent-activities">
             <div class="progress">
-                <h3>Estadisticas</h3>
+                <h3>Horas Focus — historial</h3>
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+                    <label for="pomodoro-period">Agrupar por:</label>
+                    <select id="pomodoro-period">
+                        <option value="day">Día</option>
+                        <option value="week">Semana</option>
+                    </select>
+                </div>
+                <canvas id="pomodoroChart" width="800" height="300"></canvas>
             </div>
             <div class="progress">
                 <h3>Objetivos</h3>
                 <ul id="dashboard-objectives" class="dashboard-objectives"></ul>
             </div>
         </section>
+
+        
 
         <section class="stats">
             <div class="task">
