@@ -1,157 +1,47 @@
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
+// Scoped pomodoro styles to prevent global layout changes
 
-body {
-	font-family: 'Arial', sans-serif;
-	background: #0f0f0f;
-	color: #ffffff;
-	min-height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-	position: relative;
-}
+.pomodoro-page { position: relative; padding: 1rem 2rem; }
 
-.background-grid {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	opacity: 0.02;
-	background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-	background-size: 40px 40px;
-	animation: gridMove 30s linear infinite;
-}
+.pomodoro-page .background-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.02; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 30s linear infinite; }
 
-@keyframes gridMove {
-	0% { transform: translate(0,0); }
-	100% { transform: translate(40px,40px); }
-}
+@keyframes gridMove { 0% { transform: translate(0,0); } 100% { transform: translate(40px,40px); } }
 
-.container {
-	text-align: center;
-	z-index: 2;
-	position: relative;
-	padding: 2rem;
-}
+.pomodoro-page #pomodoro-app { max-width: 100%; }
 
-.timer-wrapper {
-	position: relative;
-	display: inline-block;
-	margin-bottom: 3rem;
-}
+.pomodoro-page .timer-wrapper { position: relative; display: inline-block; margin-bottom: 2rem; }
+.pomodoro-page .progress-ring { transform: rotate(-90deg); width: 300px; height: 300px; }
+.pomodoro-page .progress-ring-circle { stroke: rgba(255,255,255,0.08); stroke-width: 6; fill: transparent; }
+.pomodoro-page .progress-ring-progress { stroke: #ffffff; stroke-width: 6; fill: transparent; stroke-dasharray: 911; stroke-dashoffset: 911; transition: stroke-dashoffset 1s ease; stroke-linecap: round; }
+.pomodoro-page .progress-ring-progress.work { stroke: #ff6b6b; }
+.pomodoro-page .progress-ring-progress.break { stroke: #4ecdc4; }
 
-.progress-ring {
-	transform: rotate(-90deg);
-	width: 300px;
-	height: 300px;
-}
+.pomodoro-page .timer-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+.pomodoro-page .time { font-size: 3rem; font-weight: 200; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-variant-numeric: tabular-nums; }
+.pomodoro-page .session-type { font-size: 0.9rem; font-weight: 300; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.15em; }
 
-.progress-ring-circle {
-	stroke: rgba(255,255,255,0.1);
-	stroke-width: 6;
-	fill: transparent;
-}
+.pomodoro-page .controls { display:flex; gap:1rem; margin-bottom:1.5rem; justify-content:flex-start; flex-wrap:wrap; }
+.pomodoro-page .btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: #ffffff; padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s ease; }
+.pomodoro-page .btn.primary { border-color: #ff6b6b; color: #ff6b6b; }
 
-.progress-ring-progress {
-	stroke: #ffffff;
-	stroke-width: 6;
-	fill: transparent;
-	stroke-dasharray: 911;
-	stroke-dashoffset: 911;
-	transition: stroke-dashoffset 1s ease;
-	stroke-linecap: round;
-}
+.pomodoro-page .settings { display:flex; gap:1.2rem; justify-content:flex-start; margin-bottom:1.2rem; flex-wrap:wrap; }
+.pomodoro-page .setting-group { display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
+.pomodoro-page .setting-label { font-size:0.75rem; font-weight:400; opacity:0.7; text-transform:uppercase; letter-spacing:0.08em; }
+.pomodoro-page .setting-controls { display:flex; align-items:center; gap:0.5rem; }
+.pomodoro-page .setting-btn { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:#fff; width:28px; height:28px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.pomodoro-page .setting-value { font-size:0.95rem; font-weight:400; min-width:2.4rem; text-align:center; }
 
-.progress-ring-progress.work { stroke: #ff6b6b; }
-.progress-ring-progress.break { stroke: #4ecdc4; }
+.pomodoro-page .stats { display:flex; gap:1.2rem; justify-content:flex-start; opacity:0.8; flex-wrap:wrap; margin-top:1rem; }
+.pomodoro-page .stat { text-align:center; }
+.pomodoro-page .stat-value { font-size:1.1rem; font-weight:300; margin-bottom:0.25rem; }
+.pomodoro-page .stat-label { font-size:0.75rem; font-weight:400; text-transform:uppercase; letter-spacing:0.08em; }
 
-.timer-display {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-
-.time {
-	font-size: 3.5rem;
-	font-weight: 200;
-	letter-spacing: 0.1em;
-	margin-bottom: 0.5rem;
-	font-variant-numeric: tabular-nums;
-}
-
-.session-type {
-	font-size: 1rem;
-	font-weight: 300;
-	opacity: 0.7;
-	text-transform: uppercase;
-	letter-spacing: 0.2em;
-}
-
-.controls { display:flex; gap:1.5rem; margin-bottom:2rem; justify-content:center; flex-wrap:wrap; }
-
-.btn {
-	background: rgba(255,255,255,0.05);
-	border: 1px solid rgba(255,255,255,0.1);
-	color: #ffffff;
-	padding: 0.8rem 1.5rem;
-	border-radius: 8px;
-	cursor: pointer;
-	font-size: 0.9rem;
-	font-weight: 300;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
-	transition: all 0.3s ease;
-	backdrop-filter: blur(10px);
-	position: relative;
-	overflow: hidden;
-}
-.btn::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: rgba(255,255,255,0.1);
-	transition: left 0.3s ease;
-}
-.btn:hover::before { left: 100%; }
-.btn:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-.btn:active { transform: translateY(0); }
-.btn.primary { border-color: #ff6b6b; color: #ff6b6b; }
-.btn.primary:hover { background: rgba(255,107,107,0.1); border-color: #ff6b6b; }
-
-.settings { display:flex; gap:2rem; justify-content:center; margin-bottom:2rem; flex-wrap:wrap; }
-.setting-group { display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
-.setting-label { font-size:0.8rem; font-weight:300; opacity:0.7; text-transform:uppercase; letter-spacing:0.1em; }
-.setting-controls { display:flex; align-items:center; gap:0.5rem; }
-.setting-btn { background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; width:32px; height:32px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition: all 0.3s ease; }
-.setting-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
-.setting-value { font-size:1rem; font-weight:300; min-width:3rem; text-align:center; }
-
-.stats { display:flex; gap:2rem; justify-content:center; opacity:0.6; flex-wrap:wrap; }
-.stat { text-align:center; }
-.stat-value { font-size:1.5rem; font-weight:200; margin-bottom:0.25rem; }
-.stat-label { font-size:0.8rem; font-weight:300; text-transform:uppercase; letter-spacing:0.1em; }
-
-.notification { position: fixed; top:2rem; right:2rem; background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:1rem 1.5rem; backdrop-filter: blur(10px); transform: translateX(400px); transition: transform 0.3s ease; z-index:100; }
-.notification.show { transform: translateX(0); }
+.pomodoro-page .notification { position: fixed; top:2rem; right:2rem; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:0.6rem 1rem; transform: translateX(400px); transition: transform 0.25s ease; z-index:100; }
+.pomodoro-page .notification.show { transform: translateX(0); }
 
 @media (max-width:768px) {
-	.progress-ring { width:250px; height:250px; }
-	.time { font-size:2.5rem; }
-	.container { padding:1rem; }
-	.settings, .controls, .stats { gap:1rem; }
+	.pomodoro-page .progress-ring { width:220px; height:220px; }
+	.pomodoro-page .time { font-size:2rem; }
+	.pomodoro-page #pomodoro-app { padding: 1rem 0; }
 }
 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }

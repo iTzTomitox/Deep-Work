@@ -138,21 +138,12 @@
   padding: 16px;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.pomodoro-page {
+  position: relative;
+  padding: 1rem 2rem;
 }
 
-body {
-  font-family: "Montserrat", sans-serif;
-  background-color: #111111;
-  color: #ffffff;
-  min-height: 100vh;
-  margin: 0;
-}
-
-.background-grid {
+.pomodoro-page .background-grid {
   position: absolute;
   top: 0;
   left: 0;
@@ -164,6 +155,11 @@ body {
   animation: gridMove 30s linear infinite;
 }
 
+.pomodoro-page .background-grid {
+  pointer-events: none;
+  z-index: 0;
+}
+
 @keyframes gridMove {
   0% {
     transform: translate(0, 0);
@@ -172,31 +168,34 @@ body {
     transform: translate(40px, 40px);
   }
 }
-.container {
-  display: flex;
-  gap: 24px;
-  min-height: 100vh;
+.pomodoro-page #pomodoro-app {
+  max-width: 100%;
 }
 
-.timer-wrapper {
+.pomodoro-page #pomodoro-app {
+  position: relative;
+  z-index: 1;
+}
+
+.pomodoro-page .timer-wrapper {
   position: relative;
   display: inline-block;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
-.progress-ring {
+.pomodoro-page .progress-ring {
   transform: rotate(-90deg);
   width: 300px;
   height: 300px;
 }
 
-.progress-ring-circle {
-  stroke: rgba(255, 255, 255, 0.1);
+.pomodoro-page .progress-ring-circle {
+  stroke: rgba(255, 255, 255, 0.08);
   stroke-width: 6;
   fill: transparent;
 }
 
-.progress-ring-progress {
+.pomodoro-page .progress-ring-progress {
   stroke: #ffffff;
   stroke-width: 6;
   fill: transparent;
@@ -206,15 +205,15 @@ body {
   stroke-linecap: round;
 }
 
-.progress-ring-progress.work {
+.pomodoro-page .progress-ring-progress.work {
   stroke: #ff6b6b;
 }
 
-.progress-ring-progress.break {
+.pomodoro-page .progress-ring-progress.break {
   stroke: #4ecdc4;
 }
 
-.timer-display {
+.pomodoro-page .timer-display {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -224,194 +223,152 @@ body {
   align-items: center;
 }
 
-.time {
-  font-size: 3.5rem;
+.pomodoro-page .time {
+  font-size: 3rem;
   font-weight: 200;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   margin-bottom: 0.5rem;
   font-variant-numeric: tabular-nums;
 }
 
-.session-type {
-  font-size: 1rem;
+.pomodoro-page .session-type {
+  font-size: 0.9rem;
   font-weight: 300;
-  opacity: 0.7;
+  opacity: 0.8;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
 }
 
-.controls {
+.pomodoro-page .controls {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 
-.btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.pomodoro-page .btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: #ffffff;
-  padding: 0.8rem 1.5rem;
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 300;
+  font-size: 0.85rem;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
 }
 
-.btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  transition: left 0.3s ease;
-}
-
-.btn:hover::before {
-  left: 100%;
-}
-
-.btn:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn.primary {
+.pomodoro-page .btn.primary {
   border-color: #ff6b6b;
   color: #ff6b6b;
 }
 
-.btn.primary:hover {
-  background: rgba(255, 107, 107, 0.1);
-  border-color: #ff6b6b;
-}
-
-.settings {
+.pomodoro-page .settings {
   display: flex;
-  gap: 2rem;
-  justify-content: center;
-  margin-bottom: 2rem;
+  gap: 1.2rem;
+  justify-content: flex-start;
+  margin-bottom: 1.2rem;
   flex-wrap: wrap;
 }
 
-.setting-group {
+.pomodoro-page .setting-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
-.setting-label {
-  font-size: 0.8rem;
-  font-weight: 300;
+.pomodoro-page .setting-label {
+  font-size: 0.75rem;
+  font-weight: 400;
   opacity: 0.7;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
-.setting-controls {
+.pomodoro-page .setting-controls {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.setting-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.pomodoro-page .setting-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: #fff;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-}
-
-.setting-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.setting-value {
   font-size: 1rem;
-  font-weight: 300;
-  min-width: 3rem;
+}
+
+.pomodoro-page .setting-value {
+  font-size: 0.95rem;
+  font-weight: 400;
+  min-width: 2.4rem;
   text-align: center;
 }
 
-.stats {
+.pomodoro-page .stats {
   display: flex;
-  gap: 2rem;
-  justify-content: center;
-  opacity: 0.6;
+  gap: 1.2rem;
+  justify-content: flex-start;
+  opacity: 0.8;
   flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
-.stat {
+.pomodoro-page .stat {
   text-align: center;
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 200;
+.pomodoro-page .stat-value {
+  font-size: 1.1rem;
+  font-weight: 300;
   margin-bottom: 0.25rem;
 }
 
-.stat-label {
-  font-size: 0.8rem;
-  font-weight: 300;
+.pomodoro-page .stat-label {
+  font-size: 0.75rem;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
-.notification {
+.pomodoro-page .notification {
   position: fixed;
   top: 2rem;
   right: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  padding: 1rem 1.5rem;
-  backdrop-filter: blur(10px);
+  padding: 0.6rem 1rem;
   transform: translateX(400px);
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
   z-index: 100;
 }
 
-.notification.show {
+.pomodoro-page .notification.show {
   transform: translateX(0);
 }
 
 @media (max-width: 768px) {
-  .progress-ring {
-    width: 250px;
-    height: 250px;
+  .pomodoro-page .progress-ring {
+    width: 220px;
+    height: 220px;
   }
-  .time {
-    font-size: 2.5rem;
+  .pomodoro-page .time {
+    font-size: 2rem;
   }
-  .container {
-    padding: 1rem;
-  }
-  .settings, .controls, .stats {
-    gap: 1rem;
+  .pomodoro-page #pomodoro-app {
+    padding: 1rem 0;
   }
 }
 @keyframes pulse {
@@ -724,6 +681,16 @@ nav button .active {
   flex-direction: column;
   align-items: center;
   background-color: #171717;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  padding: 24px 32px;
+  min-width: 0;
+}
+
+#content {
+  width: 100%;
 }
 
 .logo {

@@ -1032,6 +1032,60 @@ function initPomodoro() {
             taskSelect.appendChild(opt)
         })
         updateAccumDisplay()
+        // also populate a simple dropdown panel if present
+        const selBtn = app.querySelector('#pomodoro-select-task-btn')
+        if (selBtn) {
+            // remove existing panel
+            let panel = document.getElementById('pomodoro-task-panel')
+            if (panel) panel.remove()
+            panel = document.createElement('div')
+            panel.id = 'pomodoro-task-panel'
+            panel.style.position = 'absolute'
+            panel.style.background = 'rgba(17,17,17,0.98)'
+            panel.style.border = '1px solid rgba(255,255,255,0.04)'
+            panel.style.padding = '8px'
+            panel.style.borderRadius = '8px'
+            panel.style.display = 'none'
+            panel.style.zIndex = 50
+            tasks.forEach(t => {
+                const btn = document.createElement('button')
+                btn.textContent = t.name
+                btn.style.display = 'block'
+                btn.style.width = '100%'
+                btn.style.textAlign = 'left'
+                btn.style.background = 'transparent'
+                btn.style.border = 'none'
+                btn.style.color = '#fff'
+                btn.style.padding = '6px 8px'
+                btn.addEventListener('click', () => {
+                    taskSelect.value = t.id
+                    updateAccumDisplay()
+                    panel.style.display = 'none'
+                })
+                panel.appendChild(btn)
+            })
+            selBtn.parentElement.appendChild(panel)
+            selBtn.addEventListener('click', (e) => {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none'
+                const rect = selBtn.getBoundingClientRect()
+                panel.style.left = (selBtn.offsetLeft) + 'px'
+                panel.style.top = (selBtn.offsetTop + selBtn.offsetHeight + 6) + 'px'
+            })
+            // click outside to close
+            document.addEventListener('click', (ev) => { if (!panel.contains(ev.target) && ev.target !== selBtn) panel.style.display = 'none' })
+        }
+    }
+
+    // selected task label (visual indicator)
+    const selectedLabel = app.querySelector('#pomodoro-selected-task')
+    function updateSelectedLabel() {
+        const tid = taskSelect.value
+        if (!selectedLabel) return
+        if (!tid) selectedLabel.textContent = 'Sin tarea'
+        else {
+            const t = loadTasks().find(x => x.id === tid)
+            selectedLabel.textContent = t ? t.name : 'Sin tarea'
+        }
     }
 
     function updateAccumDisplay() {
@@ -1117,6 +1171,7 @@ function initPomodoro() {
         display.textContent = formatTime(remaining)
     })
     taskSelect.addEventListener('change', updateAccumDisplay)
+    taskSelect.addEventListener('change', updateSelectedLabel)
     startBtn.addEventListener('click', startTimer)
     pauseBtn.addEventListener('click', pauseTimer)
     resetBtn.addEventListener('click', resetTimer)
@@ -1124,6 +1179,7 @@ function initPomodoro() {
     // init
     display.textContent = formatTime(initialSeconds)
     populateTasks()
+    updateSelectedLabel()
     // --- Integración con controles de la nueva UI (si existen) ---
     const workMinusBtn = app.querySelector('#workMinus')
     const workPlusBtn = app.querySelector('#workPlus')
