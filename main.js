@@ -132,6 +132,22 @@ function initTareas() {
     function loadProjects() { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]') }
     function saveProjects(projects) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects)) }
 
+    // helper: show toast using SweetAlert2 (loads from CDN if needed)
+    function showToast(title, icon = 'success') {
+        try {
+            if (window.Swal) {
+                Swal.fire({ position: 'top-end', icon, title, showConfirmButton: false, timer: 1500 })
+            } else {
+                const s = document.createElement('script')
+                s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11'
+                s.onload = () => {
+                    try { Swal.fire({ position: 'top-end', icon, title, showConfirmButton: false, timer: 1500 }) } catch (e) { console.error('Swal error', e) }
+                }
+                document.head.appendChild(s)
+            }
+        } catch (e) { console.error('Error showing toast', e) }
+    }
+
     function findProjectName(pid, spid) {
         if (!pid) return ''
         const projects = loadProjects()
@@ -259,12 +275,18 @@ function initTareas() {
 
             editBtn.addEventListener('click', () => startEdit(li, idx))
             delBtn.addEventListener('click', () => {
-                const tasks = load()
-                const removed = tasks.splice(idx, 1)[0]
-                save(tasks)
-                // eliminar de proyectos
-                removeTaskFromProjects(removed.id)
-                render()
+                // immediate visual feedback
+                li.classList.add('deleting')
+                delBtn.disabled = true
+                setTimeout(() => {
+                    const tasks = load()
+                    const removed = tasks.splice(idx, 1)[0]
+                    save(tasks)
+                    // eliminar de proyectos
+                    removeTaskFromProjects(removed.id)
+                    render()
+                    showToast('Tarea eliminada', 'success')
+                }, 160)
             })
 
             checkbox.addEventListener('change', () => {
@@ -287,13 +309,15 @@ function initTareas() {
     }
 
     function startEdit(li, idx) {
-        const tasks = load()
-        const current = tasks[idx]
-        li.innerHTML = ''
-        const inputEdit = document.createElement('input')
-        inputEdit.type = 'text'
-        inputEdit.value = current.name
-        inputEdit.className = 'edit-input'
+        try {
+            const tasks = load()
+            const current = tasks[idx]
+            if (!current) { render(); return }
+            li.innerHTML = ''
+            const inputEdit = document.createElement('input')
+            inputEdit.type = 'text'
+            inputEdit.value = current.name
+            inputEdit.className = 'edit-input'
 
         const dateEdit = document.createElement('input')
         dateEdit.type = 'date'
@@ -324,12 +348,12 @@ function initTareas() {
         else if (current.projectId) projSelect.value = `${current.projectId}`
         else projSelect.value = ''
 
-        const saveBtn = document.createElement('button')
-        saveBtn.textContent = 'Guardar'
-        const cancelBtn = document.createElement('button')
-        cancelBtn.textContent = 'Cancelar'
+            const saveBtn = document.createElement('button')
+            saveBtn.textContent = 'Guardar'
+            const cancelBtn = document.createElement('button')
+            cancelBtn.textContent = 'Cancelar'
 
-        saveBtn.addEventListener('click', () => {
+            saveBtn.addEventListener('click', () => {
             const val = inputEdit.value.trim()
             if (!val) return
             const oldProjectId = current.projectId
@@ -364,15 +388,20 @@ function initTareas() {
                 saveProjects(projects)
             }
             render()
+            showToast('Tarea guardada', 'success')
         })
-        cancelBtn.addEventListener('click', () => render())
+        cancelBtn.addEventListener('click', () => { render(); showToast('Edición cancelada', 'info') })
 
-        li.appendChild(inputEdit)
-        li.appendChild(dateEdit)
-        li.appendChild(projSelect)
-        li.appendChild(saveBtn)
-        li.appendChild(cancelBtn)
-        inputEdit.focus()
+            li.appendChild(inputEdit)
+            li.appendChild(dateEdit)
+            li.appendChild(projSelect)
+            li.appendChild(saveBtn)
+            li.appendChild(cancelBtn)
+            inputEdit.focus()
+        } catch (e) {
+            console.error('Error al iniciar edición de tarea', e)
+            try { render() } catch (_) {}
+        }
     }
 
     addBtn.addEventListener('click', () => {
@@ -1021,6 +1050,7 @@ function initPomodoro() {
     let running = false
     let elapsedThisSession = 0
     let lastTick = null
+    let sessionMode = 'work' // 'work' | 'break' | 'longBreak'
 
     function populateTasks() {
         const tasks = loadTasks()
@@ -1060,7 +1090,10 @@ function initPomodoro() {
                 btn.addEventListener('click', () => {
                     taskSelect.value = t.id
                     updateAccumDisplay()
+                    updateSelectedLabel()
                     panel.style.display = 'none'
+                    const ev = new Event('change')
+                    taskSelect.dispatchEvent(ev)
                 })
                 panel.appendChild(btn)
             })
@@ -1119,6 +1152,27 @@ function initPomodoro() {
         }
     }
 
+    function startWorkMode() {
+        sessionMode = 'work'
+        if (workValEl) {
+            initialSeconds = parseInt(workValEl.textContent || minutesInput.value || '25', 10) * 60
+        } else {
+            initialSeconds = parseInt(minutesInput.value || '25', 10) * 60
+        }
+        remaining = initialSeconds
+        display.textContent = formatTime(remaining)
+        if (sessionTypeEl) sessionTypeEl.textContent = 'Work Session'
+    }
+
+    function startBreakMode(type = 'break') {
+        sessionMode = type === 'longBreak' ? 'longBreak' : 'break'
+        const br = sessionMode === 'longBreak' ? (parseInt(longBreakValEl?.textContent || '15', 10) || 15) : (parseInt(breakValEl?.textContent || '5', 10) || 5)
+        initialSeconds = br * 60
+        remaining = initialSeconds
+        display.textContent = formatTime(remaining)
+        if (sessionTypeEl) sessionTypeEl.textContent = sessionMode === 'longBreak' ? 'Long Break' : 'Break'
+    }
+
     function tick() {
         const now = Date.now()
         const delta = Math.floor((now - lastTick) / 1000)
@@ -1127,16 +1181,34 @@ function initPomodoro() {
         remaining -= delta
         elapsedThisSession += delta
         if (remaining <= 0) {
-            // finish
+            // finish current mode
             clearInterval(intervalId)
             intervalId = null
             running = false
             display.textContent = '00:00'
             const tid = taskSelect.value
-            saveFocusToTask(tid, elapsedThisSession)
-            elapsedThisSession = 0
-            updateAccumDisplay()
-            return
+            if (sessionMode === 'work') {
+                // save work focus
+                saveFocusToTask(tid, elapsedThisSession)
+                elapsedThisSession = 0
+                updateAccumDisplay()
+                updatePomodoroStats()
+                // decide break type: every 4th completed session -> long break
+                const sessions = loadSessions()
+                const completedCount = sessions.length || 0
+                const nextIsLong = (completedCount % 4) === 0
+                startBreakMode(nextIsLong ? 'longBreak' : 'break')
+                // auto-start break
+                lastTick = Date.now()
+                intervalId = setInterval(tick, 500)
+                running = true
+                return
+            } else {
+                // break finished -> return to work (do not auto-start)
+                startWorkMode()
+                updatePomodoroStats()
+                return
+            }
         }
         display.textContent = formatTime(remaining)
     }
@@ -1152,10 +1224,14 @@ function initPomodoro() {
         running = false
         clearInterval(intervalId)
         intervalId = null
-        const tid = taskSelect.value
-        saveFocusToTask(tid, elapsedThisSession)
-        elapsedThisSession = 0
-        updateAccumDisplay()
+        // only save if we are in work mode
+        if (sessionMode === 'work') {
+            const tid = taskSelect.value
+            saveFocusToTask(tid, elapsedThisSession)
+            elapsedThisSession = 0
+            updateAccumDisplay()
+            updatePomodoroStats()
+        }
     }
     function resetTimer() {
         pauseTimer()
@@ -1176,10 +1252,65 @@ function initPomodoro() {
     pauseBtn.addEventListener('click', pauseTimer)
     resetBtn.addEventListener('click', resetTimer)
 
+    // session type label
+    const sessionTypeEl = app.querySelector('#sessionType')
+    // stats elements
+    const completedEl = document.getElementById('completedSessions')
+    const totalTimeEl = document.getElementById('totalTime')
+    const streakEl = document.getElementById('currentStreak')
+
+    function updatePomodoroStats() {
+        try {
+            const sessions = loadSessions() || []
+            const completed = sessions.length
+            if (completedEl) completedEl.textContent = String(completed)
+            const totalSeconds = (typeof computeStats === 'function') ? computeStats().totalSeconds : sessions.reduce((s,x)=>s+(x.seconds||0),0)
+            if (totalTimeEl) totalTimeEl.textContent = secsToHuman(totalSeconds)
+            // compute current daily streak
+            const dates = new Set((sessions || []).map(s => new Date(s.timestamp).toISOString().slice(0,10)))
+            let streak = 0
+            let d = new Date()
+            while (true) {
+                const key = d.toISOString().slice(0,10)
+                if (dates.has(key)) { streak++; d.setDate(d.getDate() - 1) } else break
+            }
+            if (streakEl) streakEl.textContent = String(streak)
+        } catch (e) { console.error('Error updating pomodoro stats', e) }
+    }
+
+    // Skip button behavior
+    const skipBtn = app.querySelector('#skipBtn')
+    if (skipBtn) skipBtn.addEventListener('click', () => {
+        if (sessionMode === 'work') {
+            // end current work and go to break
+            if (running) {
+                pauseTimer()
+            }
+            // ensure we save any elapsed
+            const tid = taskSelect.value
+            saveFocusToTask(tid, elapsedThisSession)
+            elapsedThisSession = 0
+            updateAccumDisplay()
+            updatePomodoroStats()
+            const sessions = loadSessions() || []
+            const nextIsLong = (sessions.length % 4) === 0
+            startBreakMode(nextIsLong ? 'longBreak' : 'break')
+            // auto-start break
+            startTimer()
+        } else {
+            // if in break, skip to next work (reset to work minutes)
+            if (running) {
+                pauseTimer()
+            }
+            startWorkMode()
+        }
+    })
+
     // init
     display.textContent = formatTime(initialSeconds)
     populateTasks()
     updateSelectedLabel()
+    updatePomodoroStats()
     // --- Integración con controles de la nueva UI (si existen) ---
     const workMinusBtn = app.querySelector('#workMinus')
     const workPlusBtn = app.querySelector('#workPlus')

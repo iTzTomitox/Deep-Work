@@ -119,7 +119,20 @@
   border: 1px solid transparent;
   border-radius: 16px;
   color: #fff;
-  width: 670px;
+  width: 800px;
+  height: 350px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1450980392);
+  padding: 16px;
+}
+
+.progress2 {
+  background: linear-gradient(#171717, #171717) padding-box, linear-gradient(45deg, #222222, #000000) border-box;
+  -webkit-background-clip: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #fff;
+  width: 550px;
   height: 350px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1450980392);
   padding: 16px;
@@ -155,11 +168,6 @@
   animation: gridMove 30s linear infinite;
 }
 
-.pomodoro-page .background-grid {
-  pointer-events: none;
-  z-index: 0;
-}
-
 @keyframes gridMove {
   0% {
     transform: translate(0, 0);
@@ -170,11 +178,6 @@
 }
 .pomodoro-page #pomodoro-app {
   max-width: 100%;
-}
-
-.pomodoro-page #pomodoro-app {
-  position: relative;
-  z-index: 1;
 }
 
 .pomodoro-page .timer-wrapper {
@@ -469,6 +472,16 @@
   color: #ff6b6b;
 }
 
+.task-item.deleting {
+  background: rgba(255,107,107,0.12);
+  transition: background 160ms ease, opacity 200ms ease;
+  opacity: 0.8;
+}
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* User-provided fancy checkbox styles (moved from CSS into SASS) */
 .checkbox-container {
   display: inline-block;
@@ -681,16 +694,6 @@ nav button .active {
   flex-direction: column;
   align-items: center;
   background-color: #171717;
-}
-
-.app-main {
-  flex: 1 1 auto;
-  padding: 24px 32px;
-  min-width: 0;
-}
-
-#content {
-  width: 100%;
 }
 
 .logo {
